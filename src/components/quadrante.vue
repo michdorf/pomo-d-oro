@@ -9,7 +9,7 @@
  * Quadrante (watchface)
  */
 export default {
-  props: ["perc", "canvas_size"],
+  props: ["perc", "canvasSize"],
   watch: {
     perc() {
       requestAnimationFrame(this.disegna);
@@ -25,8 +25,8 @@ export default {
   },
   methods: {
     configurazione() {
-      if (this.canvas_size) {
-        this.pCanvasSize = this.canvas_size;
+      if (this.canvasSize) {
+        this.pCanvasSize = this.canvasSize;
       }
       const canvas = this.$el; /*.querySelector("canvas")*/
       this.ctx = canvas.getContext("2d");

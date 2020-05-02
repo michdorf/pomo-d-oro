@@ -14,7 +14,7 @@
         ></OraCompletamento>
       </div>
     </div>
-    <Quadrante :perc="perc" :canvas_size="quadranteSize"></Quadrante>
+    <Quadrante :perc="perc" :canvasSize="quadranteSize"></Quadrante>
   </div>
 </template>
 <script>

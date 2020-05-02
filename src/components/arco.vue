@@ -1,5 +1,5 @@
 <template>
-  <canvas :width="canvas_size" :height="canvas_size"></canvas>
+  <canvas :width="canvasSize" :height="canvasSize"></canvas>
 </template>
 
 <script>
@@ -14,7 +14,7 @@ export default {
     };
   },
   computed: {
-    canvas_size() {
+    canvasSize() {
       return this.psize + 4;
     }
   },
@@ -49,15 +49,15 @@ export default {
       this.ctx.strokeStyle = this.pcolor;
       this.ctx.fillStyle = this.pcolor;
       this.ctx.lineWidth = Math.ceil(this.psize / 16);
-      const border_radius = this.psize / 2;
-      const radius = border_radius - 4;
+      const borderRadius = this.psize / 2;
+      const radius = borderRadius - 4;
 
-      this.ctx.clearRect(0, 0, this.canvas_size, this.canvas_size);
+      this.ctx.clearRect(0, 0, this.canvasSize, this.canvasSize);
       this.drawBorder(
         this.ctx,
-        border_radius + 2,
-        border_radius + 2,
-        border_radius
+        borderRadius + 2,
+        borderRadius + 2,
+        borderRadius
       );
       this.drawPie(this.ctx, radius + 6, radius + 6, radius, this.perc);
       // requestAnimationFrame(this.loop);
