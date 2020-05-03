@@ -9,9 +9,11 @@
   >
     <Notif></Notif>
     <h1>Pomodoro <button @click="riazzera()">x</button></h1>
-    <h3 v-if="ePausaLunga">Pausa lunga</h3>
-    <h3 v-else-if="eInPausa">Pausa</h3>
-    <h3 v-else>Concentrazione</h3>
+    <IndicatoreDiStato
+      :inCorso="inCorso"
+      :eInPausa="eInPausa"
+      :ePausaLunga="ePausaLunga"
+    ></IndicatoreDiStato>
     <AttivitaComp
       :attivita="$store.getters.attivita"
       :sessioni="$store.getters.sessioni"
@@ -36,12 +38,14 @@ import Attivita from "@/js/attivita.js";
 import Notif from "@/components/notif.vue";
 import Timer from "@/components/timer.vue";
 import AttivitaComp from "@/components/attivita.vue";
+import IndicatoreDiStato from "@/components/indicatoreDiStato.vue";
 
 export default {
   name: "Home",
   components: {
     Notif,
     Timer,
+    IndicatoreDiStato,
     AttivitaComp
   },
   store: pomoStore,
@@ -260,12 +264,16 @@ export default {
       "https://dechiffre.dk/"
     );
 
+    let blurT;
     window.addEventListener("blur", () => {
+      blurT = Date.now();
       this.blurred = true;
     });
     window.addEventListener("focus", () => {
       this.blurred = false;
-      this.chiediServer();
+      if (blurT - Date.now() > 30 * 60) {
+        this.chiediServer();
+      }
     });
   },
   data() {

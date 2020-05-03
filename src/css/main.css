@@ -1,4 +1,5 @@
 :root {
+    --dim-text-color: gray;
     --main-bg-color: #e1e1e1;
     --dim-bg-color: darkgray;
     --popup-bg-color: rgb(126, 180, 216);
