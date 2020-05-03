@@ -1,8 +1,11 @@
 <template>
   <div>
-    <button @click="toggle()">{{ toggleStr }}</button>
-    <template v-if="mostra">
+    <!-- <button @click="toggle()">{{ toggleStr }}</button> -->
+    <template v-show="mostra">
       <p v-for="(errore, i) in errori" v-bind:key="i">{{ i }}: {{ errore }}</p>
+    </template>
+    <template v-if="!errori.length">
+      <p style="font-size: 22px">Nessun errore</p>
     </template>
   </div>
 </template>
@@ -15,7 +18,8 @@ export default {
   data() {
     return {
       errori: [],
-      mostra: false
+      ascoltatore: undefined,
+      mostra: true
     };
   },
   methods: {
@@ -24,7 +28,9 @@ export default {
     }
   },
   created() {
-    erroriOsserv.senti(errore => this.errori.push(errore));
+    this.ascoltatore = erroriOsserv.senti(errore => this.errori.push(errore));
+    erroriOsserv.autoZitto(this.ascoltatore, this);
+    erroriOsserv.riproduci();
   },
   computed: {
     toggleStr() {

@@ -1,10 +1,12 @@
 import APP from "../App.vue";
-import Osservabile from "../webApp/js/osservabile.js";
+import { Riproducibile } from "../webApp/js/osservabile.ts";
 import ajax from "../webApp/js/ajax.js";
 import t from "../webApp/js/traduzione.js";
 import { faiIlLogin } from "../login/js/login.js";
 
-const erroriOsserv = new Osservabile();
+const erroriOsserv = new Riproducibile();
+
+erroriOsserv.prossimo("Alt er fint");
 
 function handleError(response) {
   const r = response;

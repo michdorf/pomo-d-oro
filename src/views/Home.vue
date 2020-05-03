@@ -8,7 +8,6 @@
     }"
   >
     <Notif></Notif>
-    <Errori></Errori>
     <h1>Pomodoro <button @click="riazzera()">x</button></h1>
     <h3 v-if="ePausaLunga">Pausa lunga</h3>
     <h3 v-else-if="eInPausa">Pausa</h3>
@@ -30,14 +29,12 @@ import Notizie from "@/js/notificazioni.js";
 import Attivita from "@/js/attivita.js";
 
 import Notif from "@/components/notif.vue";
-import Errori from "@/components/errori.vue";
 import Timer from "@/components/timer.vue";
 
 export default {
   name: "Home",
   components: {
     Notif,
-    Errori,
     Timer
   },
   store: pomoStore,
