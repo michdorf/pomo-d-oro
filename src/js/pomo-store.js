@@ -7,6 +7,7 @@ Vue.use(Vuex);
 
 const statoStoragek = "pomo-d-oro";
 let pomoStore = {};
+const stdState = { tempi: [25, 5, 15], pausaLungaDopo: 4, sesDati: [] };
 
 function salvaState() {
   localStorage.setItem(
@@ -153,10 +154,7 @@ const stateSalvato = localStorage.getItem(statoStoragek);
 if (stateSalvato) {
   pomoStore.commit("ripristinaState", JSON.parse(stateSalvato));
 } else {
-  pomoStore.commit(
-    "ripristinaState",
-    JSON.parse(process.env.VUE_APP_STD_STATO)
-  );
+  pomoStore.commit("ripristinaState", stdState);
 }
 
 export default pomoStore;
