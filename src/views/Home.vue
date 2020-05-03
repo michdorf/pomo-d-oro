@@ -12,6 +12,11 @@
     <h3 v-if="ePausaLunga">Pausa lunga</h3>
     <h3 v-else-if="eInPausa">Pausa</h3>
     <h3 v-else>Concentrazione</h3>
+    <AttivitaComp
+      :attivita="$store.getters.attivita"
+      :sessioni="$store.getters.sessioni"
+      @cambia="setAttivita($event)"
+    ></AttivitaComp>
     <Timer :tempoStr="tempoStr" :perc="percFinito"></Timer>
     <button v-show="!inCorso" @click="inizia()">Start</button
     ><button v-show="inCorso" @click="ferma()">Stop</button>
@@ -30,12 +35,14 @@ import Attivita from "@/js/attivita.js";
 
 import Notif from "@/components/notif.vue";
 import Timer from "@/components/timer.vue";
+import AttivitaComp from "@/components/attivita.vue";
 
 export default {
   name: "Home",
   components: {
     Notif,
-    Timer
+    Timer,
+    AttivitaComp
   },
   store: pomoStore,
   computed: {
@@ -233,7 +240,7 @@ export default {
     },
     setAttivita(attivita) {
       this.$store.commit("attivita", attivita);
-      this.racconta_server({
+      this.richiedi("attivita", {
         attivita: Attivita.toArray(this.$store.getters.attivita)
       });
     },
