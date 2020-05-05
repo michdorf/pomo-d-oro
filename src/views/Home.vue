@@ -271,7 +271,7 @@ export default {
     });
     window.addEventListener("focus", () => {
       this.blurred = false;
-      if (blurT - Date.now() > 30 * 60) {
+      if (blurT - Date.now() > 30 * 60 * 1000) {
         this.chiediServer();
       }
     });
