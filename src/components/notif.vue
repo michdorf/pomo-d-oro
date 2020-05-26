@@ -1,5 +1,5 @@
 <template>
-  <span v-if="noti_disponibile">
+  <span v-if="notiDisponibile">
       <button v-if="!permesso" @click="chiediPermesso()">Giv tilladelse til notificationer</button>
     </span>
 </template>
@@ -12,7 +12,7 @@ export default {
     return {
       n: new Notizie(),
       permesso: false,
-      noti_disponibile: ('Notification' in window) /* ('requestPermission' in Notification) */
+      notiDisponibile: ('Notification' in window) /* ('requestPermission' in Notification) */
     }
   },
   methods: {
