@@ -2,6 +2,7 @@
   <div id="app">
     <div id="nav">
       <router-link to="/">Home</router-link> |
+      <router-link to="/statistica">Statistica</router-link> |
       <router-link to="/errori">Debug</router-link>
       <!-- <router-link to="/about">About</router-link> -->
     </div>
@@ -10,8 +11,39 @@
 </template>
 
 <script>
+import "./js/filters.js";
+import { default as pomoStore } from "@/js/pomo-store.js";
+
 export default {
-  name: "App"
+  name: "App",
+  store: pomoStore,
+  data() {
+    return {
+      modifNonSalvate: false,
+      blurred: false
+    };
+  },
+  methods: {
+    chiediServer() {
+      if (this.modifNonSalvate) {
+        return;
+      }
+      this.richiedi("chiedi");
+    }
+  },
+  created() {
+    let blurT;
+    window.addEventListener("blur", () => {
+      blurT = Date.now();
+      this.blurred = true;
+    });
+    window.addEventListener("focus", () => {
+      this.blurred = false;
+      if (blurT - Date.now() > 30 * 60 * 1000) {
+        this.chiediServer();
+      }
+    });
+  }
 };
 </script>
 
