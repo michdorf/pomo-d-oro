@@ -1,0 +1,48 @@
+:root {
+  --main-bg-color: #e1e1e1;
+  --dim-bg-color: darkgray;
+  --popup-bg-color: rgb(126, 180, 216);
+  --focus-bg-color: rgb(42, 252, 99); /* arancione o *verde* o blu */
+  --pausa-bg-color: rgb(118, 231, 254); /* *blu* o arancione */
+}
+
+.timer {
+    font-size: 68px;
+}
+
+main#app {
+  min-height: 100vh;
+  background-color: var(--main-bg-color);
+}
+main#app.focus.in_corso {
+  background-color: var(--focus-bg-color);
+}
+main#app.pausa.in_corso {
+  background-color: var(--pausa-bg-color);
+}
+
+body, h1, h2 {
+  margin: 0;
+}
+
+.apexcharts-canvas {
+  color: initial;
+}
+
+/*if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    alert("Nu er det nat")
+} */
+/* Dark mode */
+@media (prefers-color-scheme: dark) { /* modsat: prefers-color-scheme: light */
+  :root {
+    /* Dark mode */
+    --main-bg-color: darkgray;
+    --dim-bg-color: black;
+    --focus-bg-color: rgb(2, 117, 33);
+    --pausa-bg-color: rgb(1, 120, 145);
+  }
+
+  main#app {
+    color: white;
+  }
+}
