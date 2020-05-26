@@ -28,7 +28,7 @@
 
 <script>
 // @ is an alias to /src
-import { default as pomoStore, statoStoragek } from "@/js/pomo-store.js";
+import { statoStoragek } from "@/js/pomo-store.js";
 import date from "@/webApp/js/date.js";
 import { faiIlLogin } from "@/login/js/login.js";
 import { mandaAlServer } from "@/js/main.js";
@@ -48,7 +48,6 @@ export default {
     IndicatoreDiStato,
     AttivitaComp
   },
-  store: pomoStore,
   computed: {
     tempoStr() {
       const minuti = Math.floor(this.$store.getters.tempo / 60);
@@ -264,16 +263,11 @@ export default {
       "https://dechiffre.dk/"
     );
 
-    let blurT;
     window.addEventListener("blur", () => {
-      blurT = Date.now();
       this.blurred = true;
     });
     window.addEventListener("focus", () => {
       this.blurred = false;
-      if (blurT - Date.now() > 30 * 60 * 1000) {
-        this.chiediServer();
-      }
     });
   },
   data() {
