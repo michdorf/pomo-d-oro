@@ -2,6 +2,7 @@ import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 import Home from "../views/Home.vue";
 import Errori from "../views/errori.vue";
+import Statistica from "../views/Statistica.vue";
 
 Vue.use(VueRouter);
 
@@ -15,6 +16,11 @@ const routes: Array<RouteConfig> = [
     path: "/errori",
     name: "Debug log",
     component: Errori
+  },
+  {
+    path: "/statistica",
+    name: "Statistica",
+    component: Statistica
   },
   {
     path: "/about",

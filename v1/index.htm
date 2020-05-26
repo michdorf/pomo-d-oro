@@ -1,0 +1,356 @@
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta http-equiv="X-UA-Compatible" content="ie=edge">
+      <link rel="stylesheet" href="css/main.css" type="text/css" />
+      <link rel="stylesheet" href="./js/apexcharts/apexcharts.css" type="text/css" />
+      <title>Pomo d'oro</title>
+      <script src="/webApp/js/date.js" type="text/javascript"></script>
+      <script src="/webApp/js/traduzione.js" type="text/javascript"></script>
+      <script src="/webApp/js/webapp.helper.js" type="text/javascript"></script>
+      <script src="/webApp/js/osservabile.js" type="text/javascript"></script>
+      <script src="/webApp/js/debug.js" type="text/javascript"></script>
+      <script src="/webApp/js/axios.min.js" type="text/javascript"></script>
+      <script src="/login/js/login.js" type="text/javascript"></script>
+      <script src="./js/main.js" type="text/javascript"></script>
+      <script src="./js/ambiente.js" type="text/javascript"></script>
+      <script src="./js/notificazioni.js" type="text/javascript"></script>
+      <script src="./js/attivita.js" type="text/javascript"></script>
+      <script src="/vue/vue.js" type="text/javascript"></script>
+      <script src="/vue/vuex.js" type="text/javascript"></script>
+      <script src="/vue/vue.helper.js" type="text/javascript"></script>
+      <script src="./js/apexcharts/apexcharts.min.js" type="text/javascript"></script>
+      <script type="text/javascript">
+        /* var script = document.createElement("script");
+        script.setAttribute("src", "/vue/" + (!ambiente.debug ? "production/" : "") + "vue.min.js");
+        script.setAttribute("onload", "iniziaApp()");
+        document.head.appendChild(script); */
+
+        /* script.setAttribute("src", "/vue/vuex.js");
+        document.head.appendChild(script); */
+      </script>
+
+      <script src="./js/Sessione.js" type="text/javascript"></script>
+  </head>
+  <body>
+      <main id="app" :class="{'in_corso': in_corso, 'focus': (!e_in_pausa && !e_pausa_lunga), 'pausa': (e_in_pausa || e_pausa_lunga)}">
+          <app-notif></app-notif>
+          <app-errori></app-errori>
+          <h1>Pomodoro <button @click="riazzera()">x</button></h1>
+          <div style="text-align: center">
+          <h3 v-if="e_pausa_lunga">Pausa lunga</h3>
+          <h3 v-else-if="e_in_pausa">Pausa</h3>
+          <h3 v-else>Concentrazione</h3>
+          <app-timer :tempo_str="tempo_str" :perc="perc_finito"></app-timer>
+          <button @click="salta_punto_lavoro()">Salta</button>
+          <button v-show="!in_corso" @click="inizia()">Start</button><button v-show="in_corso" @click="ferma()">Stop</button>
+          <br>
+          <br>
+          <app-attivita @cambia="set_attivita($event)" :attivita="this.$store.getters.attivita" :sessioni="$store.getters.sessioni"></app-attivita>
+            <app-indicatore-progresso :tempo="$store.getters.tempo"
+                                      :in_corso="in_corso"
+                                      :durata_timer="$store.getters.durata_timer"
+                                      :sessioni="$store.getters.sessioni"
+                                      :obbiettivo="$store.getters.obbiettivo_pro_giorno"
+                                      :pausa_lunga_dopo="$store.getters.pausa_lunga_dopo"></app-indicatore-progresso>
+          </div>
+          <hr/>
+          <app-grafici :sessioni="$store.getters.sessioni"></app-grafici>
+          <hr/>
+          <app-lista-sessioni :sessioni="$store.getters.sessioni"></app-lista-sessioni>
+          punto lavoro: {{$store.getters.punto_lavoro}}<br>
+      </main>
+
+      <script src="./js/pomo-store.js" type="text/javascript"></script>
+      <script src="./js/filters.js" type="text/javascript"></script>
+      <script src="./compi/notif.js" type="text/javascript"></script>
+      <script src="./compi/errori.js" type="text/javascript"></script>
+      <script src="./compi/timer.js" type="text/javascript"></script>
+      <script src="./compi/quadrante.js" type="text/javascript"></script>
+      <script src="./compi/ora-completamento.js" type="text/javascript"></script>
+      <script src="./compi/attivita.js" type="text/javascript"></script>
+      <script src="./compi/lista-sessioni.js" type="text/javascript"></script>
+      <script src="./compi/arco.js" type="text/javascript"></script>
+      <script src="./compi/linee.js" type="text/javascript"></script>
+      <script src="./compi/cerchi.js" type="text/javascript"></script>
+      <script src="./compi/indicatore-progresso.js" type="text/javascript"></script>
+      <script src="./compi/diagramma-lineare.js" type="text/javascript"></script>
+      <script src="./compi/diagramma-orette.js" type="text/javascript"></script>
+      <script src="./compi/grafici.js" type="text/javascript"></script>
+      <script type="text/javascript">
+          var APP;
+          var suAppPronto = function (funz) {
+            _suAppPFunz.push(funz);
+          }
+          function iniziaApp() {
+
+          APP = new Vue({
+              el:"main#app",
+              store: pomoStore,
+              computed: {
+                  tempo_str() {
+                      var minuti = Math.floor(this.$store.getters.tempo/60);
+                      return date.aggZeri(minuti + ":" + (this.$store.getters.tempo - (minuti*60)), [2], ":");
+                  },
+                  perc_finito() {
+                    return 100 - (this.$store.getters.tempo / this.$store.getters.durata_timer * 100);
+                  },
+                  sessioni_str() {
+                    return this.$store.getters.sessioni.map(s => new Date(s["iniziato_t"]).toLocaleString());
+                  },
+                  in_corso() {
+                    return !this.$store.getters.finito;
+                  },
+                  e_in_pausa() { // Se il punto lavoro e una pausa
+                    return this.$store.getters.e_in_pausa;
+                  },
+                  e_pausa_lunga() {
+                    // focus (0) pause (1) focus pause focus pause focus pausa-lunga (7)
+                    return this.$store.getters.e_pausa_lunga;
+                  },
+                  e_dark_mode() {
+                    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+                  }
+              },
+              methods: {
+                  init() {
+                      // this.carica_stato();
+                      this.chiedi_server();
+                      this.imposti_timer();
+                      this.auto_riprendi();
+                  },
+                  racconta_server(payload) {
+                    // Debounce
+                    if (this.t_sinc) {
+                      clearTimeout(this.t_sinc);
+                    }
+                    this.t_sinc = setTimeout(function sincin() {
+                      console.log("Chiama racconta_server()");
+                      this.$store.commit("inc_sinc_inx");
+                      payload.sinc_id = this.$store.getters.sinc_id;
+                      // payload.sinc_inx = this.sinc_inx;
+                      // if (this.in_corso) {
+                        /* payload.iniziato_t = this.iniziato_t;
+                        payload.durata_timer = this.durata_timer;
+                        payload.pausa_lunga_dopo = this.pausa_lunga_dopo;
+                        payload.punto_lavoro = this.punto_lavoro;
+                        payload.ses_dati = this.ses_dati;
+                        payload.finito = this.finito; */
+                      // }
+                      mandaAlServer("api/racconta/", payload);
+                    }.bind(this), 200);
+                  },
+                  chiedi_server() {
+                    // Ingen sinc_inx til at stoppe loadServerTimer
+                    if (this.modif_non_salvate) {
+                      return;
+                    }
+                    mandaAlServer("api/chiedi/");
+                  },
+                  loadServerTimer(timerStato, sinc_id) { // Is called everytime an server-interaction occurs
+                    console.log("Merger med: ", timerStato); // { iniziato_t: "0", durata_timer: "0", punto_lavoro: "0", finito: "1" }
+
+                    this.$store.commit("sinc_inx", sinc_id);
+
+                    if (timerStato.iniziato_t) {this.$store.commit('iniziato_t', parseInt(timerStato.iniziato_t)); }
+                    if (timerStato.durata_timer) {this.$store.commit('durata_timer', parseInt(timerStato.durata_timer)); }
+                    if (timerStato.punto_lavoro) {this.$store.commit('punto_lavoro', parseInt(timerStato.punto_lavoro)); }
+                    if (typeof timerStato.finito !== "undefined") {
+                      this.$store.commit('finito', (timerStato.finito === true || parseInt(timerStato.finito) === 1) ? true : false);
+                    }
+                    if (timerStato.ses_dati) {
+                      this.$store.commit('ses_dati', typeof timerStato.ses_dati === "string" ? JSON.parse(timerStato.ses_dati) : timerStato.ses_dati);
+                    }
+                    if (timerStato.attivita) {
+                      let attivita_arr = typeof timerStato.attivita === "string" ? JSON.parse(timerStato.attivita) : timerStato.attivita;
+                      this.$store.commit("attivita_arr", attivita_arr);
+                    }
+
+                    this.auto_riprendi();
+                  },
+                  inizia() {
+                      this.imposti_timer();
+                      this.$store.commit('iniziato_t', Date.now());
+                      this.$store.commit('finito', false);
+
+                      this.riprendi(); // Varetages også af loadServerTimer()
+
+                      this.racconta_server({
+                        iniziato_t: this.$store.getters.iniziato_t,
+                        durata_timer: this.$store.getters.durata_timer,
+                        finito: this.$store.getters.finito
+                      });
+                  },
+                  imposti_timer() { // Imposta il timer allo prossimo intervallo
+                    this.$store.commit('imposti_timer');
+                  },
+                  riprendi() {
+                    this.iniz_timer();
+                  },
+                  auto_riprendi() {
+                    this.imposti_timer();
+                    if (this.$store.getters.iniziato_t && !this.$store.getters.finito) {
+                      this.riprendi();
+                    }
+                  },
+                  ferma() { // Solo usato da buttone
+                      this.ferma_timer();
+                      this.$store.commit("iniziato_t", 0);
+                      this.imposti_timer();
+                      this.$store.commit('finito', true);
+
+                      this.racconta_server({
+                        durata_timer: this.$store.getters.durata_timer,
+                        punto_lavoro: this.$store.getters.punto_lavoro,
+                        finito: this.$store.getters.finito
+                      });
+                      /* mandaAlServer("api/sinc/", {
+                          iniziato_t: this.iniziato_t,
+                          durata_timer: this.durata_timer,
+                          punto_lavoro: this.punto_lavoro,
+                          finito: true
+                      }); */
+                  },
+                  prossimo_punto() {
+                      this.$store.commit('prossimo_punto');
+                  },
+                  salta_punto_lavoro() {
+                    this.$store.commit('finito', true);
+                    this.prossimo_punto();
+
+                    this.racconta_server({
+                      finito: this.$store.getters.finito,
+                      punto_lavoro: this.$store.getters.punto_lavoro,
+                      durata_timer: this.$store.getters.durata_timer
+                    });
+                  },
+                  iniz_timer() {
+                      this.tic_timer();
+                  },
+                  ferma_timer() {
+                      if (this.t_handle) {
+                          clearTimeout(this.t_handle);
+                      }
+                  },
+                  tic_timer() {
+                      if (this.$store.getters.finito) { // Gia concluso - tic_timer() viene eseguita anche dopo ferma_timer()
+                        return;
+                      }
+                      this.$store.commit('tempo', this.$store.getters.durata_timer - Math.round((Date.now() - this.$store.getters.iniziato_t)/1000));
+                      if (this.$store.getters.tempo <= 0) {
+                          /* BUG: jeg har problemer med at nogle gange fra overgang fra pause til focus, rammer koden her og tempo er negativ og timeren stopper (uden at det afspejles i UI men bliver sendt til serveren) */
+                          this.concludi_intervallo();
+                          return;
+                      }
+                      this.t_handle = setTimeout(this.tic_timer, 500);
+                  },
+                  concludi_intervallo() {
+                    this.ferma_timer();
+                    this.registra_sessione(); // Skal køres FØR prossimo_punto()
+                    this.$store.commit('finito', true);
+                    var n = new Notizie();
+                    n.mandi("Pomo d'oro"
+                            , "Your " + (this.e_in_pausa ? "pause" : "focus session") + " is done. " + "Get ready to " + (this.e_in_pausa ? "study" : "take a break!")
+                            , [{action:'extend', title:'Extend 5 minutes'}]);
+                    this.prossimo_punto();
+
+                    // this.salva_stato("iniziato_t", (this.iniziato_t = 0));
+                    this.imposti_timer();
+
+                    this.racconta_server({
+                      durata_timer: this.$store.getters.durata_timer,
+                      punto_lavoro: this.$store.getters.punto_lavoro,
+                      ses_dati: this.$store.getters.ses_dati,
+                      finito: this.$store.getters.finito
+                    });
+                  },
+                  registra_sessione() {
+                      this.$store.commit("registra_sessione");
+                  },
+                  iniz_stato() {
+                      this.stato = this.std_stato;
+                      localStorage.setItem(this.storagek, JSON.stringify(this.stato))
+                  },
+                  salva_stato(chiave, val) {
+                      this.stato[chiave] = val;
+                      localStorage.setItem(this.storagek, JSON.stringify(this.stato))
+                  },
+                  set_attivita(attivita) {
+                    this.$store.commit("attivita", attivita);
+                    this.racconta_server({
+                      attivita: Attivita.toArray(this.$store.getters.attivita)
+                    });
+                  },
+                  carica_stato() {
+                      /* Overtaget af pomoStore
+                      this.stato = JSON.parse(localStorage.getItem(this.storagek));
+                      if (!this.stato) {
+                          this.iniz_stato();
+                      }
+                      // this.sessioni = this.stato.sessioni || [];
+
+                      this.ses_dati = this.stato.ses_dati || [];
+                      this.tempi = this.stato.tempi;
+                      this.pausa_lunga_dopo = this.stato.pausa_lunga_dopo || 4;
+                      this.iniziato_t = this.stato.iniziato_t || 0;
+                      this.durata_timer = this.stato.durata_timer || 0;
+                      this.punto_lavoro = this.stato.punto_lavoro || 0;
+
+                      this.set_ses_dati(); */
+
+                      this.auto_riprendi();
+                  },
+                  riazzera() {
+                    localStorage.removeItem(statoStoragek);
+                    location.reload();
+                  }
+              },
+              created() {
+                fai_il_login(function () {
+                    this.init();
+                    _eseguiAppPronto(this);
+                }.bind(this));
+
+                var blur_t = Date.now();
+                window.addEventListener('blur', () => {
+                  this.blurred = true;
+                  blur_t = Date.now();
+                });
+                window.addEventListener('focus', () => {
+                  this.blurred = false;
+                  this.chiedi_server();
+                });
+              },
+              data: {
+                  t_handle: undefined,
+                  t_sinc: undefined,
+                  blurred: false,
+                  modif_non_salvate: false
+                  /*prefz: undefined
+                   stato: {}*/
+              }
+          });
+
+          }
+      </script>
+      <script type="text/javascript">
+        var errori_osserv = new Osservabile();
+
+        _suAppPFunz = [];
+        function _eseguiAppPronto(app) {
+          _suAppPFunz.forEach((funz, i) => {
+            funz(app);
+          });
+        }
+      </script>
+
+      <script type="text/javascript">
+        t.init("da");
+        iniziaApp();
+      </script>
+
+      <script src="./js/servizi/document-titolo.js" type="text/javascript"></script>
+  </body>
+  </html>

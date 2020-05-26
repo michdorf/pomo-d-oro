@@ -1,17 +1,29 @@
 <template>
   <div class="lista-sessioni" style="display: flex; overflow-x: auto">
-      <div class="giorno cont" v-for="giorno in date_sessioni" style="min-width: 176px; flex: 1;">
-        {{giorno[0].iniziatoT | data}}
-        <ul>
-          <li v-for="data in giorno">{{data.iniziatoT | ora}}
-          <template v-if="data.attivita">(<b>{{data.attivita.testo}}</b> <i>{{data.attivita.progetto}}</i>)</template>
-          </li>
-        </ul>
-      </div>
+    <div
+      class="giorno cont"
+      v-for="(giorno, i) in dateSessioni"
+      :key="i"
+      style="min-width: 176px; flex: 1;"
+    >
+      {{ giorno[0].iniziatoT | data }}
+      <ul>
+        <li v-for="(data, i) in giorno" :key="i">
+          {{ data.iniziatoT | ora }}
+          <template v-if="data.attivita"
+            >(<b>{{ data.attivita.testo }}</b>
+            <i>{{ data.attivita.progetto }}</i
+            >)</template
+          >
+        </li>
+      </ul>
     </div>
+  </div>
 </template>
 
 <script>
+import date from "../webApp/js/date.js";
+
 export default {
   props: ["sessioni"],
   watch: {
@@ -20,14 +32,15 @@ export default {
     }
   },
   computed: {
-    date_sessioni() {
-      var ses = this.sessioni; //.map(ses => date.datastr(ses.iniziatoT, "giornodata"));
-      var data_cor = "", giorno = [];
-      var r = [];
-      for (var i = 0; i < ses.length;) {
+    dateSessioni() {
+      const ses = this.sessioni; //.map(ses => date.datastr(ses.iniziatoT, "giornodata"));
+      let dataCor = "",
         giorno = [];
-        data_cor = date.datestamp(ses[i].iniziatoT);
-        while (i < ses.length && data_cor === date.datestamp(ses[i].iniziatoT)) {
+      const r = [];
+      for (let i = 0; i < ses.length; ) {
+        giorno = [];
+        dataCor = date.datestamp(ses[i].iniziatoT);
+        while (i < ses.length && dataCor === date.datestamp(ses[i].iniziatoT)) {
           giorno.push(ses[i]);
           i++;
         }
@@ -39,6 +52,5 @@ export default {
   mounted() {
     this.$el.scrollLeft = this.$el.scrollWidth;
   }
-}
+};
 </script>
-
